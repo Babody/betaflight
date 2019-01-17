@@ -11,6 +11,9 @@
 // Macro to define packed structures
 #ifdef __GNUC__
   #define MAVPACKED( __Declaration__ ) __Declaration__ __attribute__((packed))
+#elif defined(__ICCARM__)
+	#define MAVPACKED( __Declaration__ )   __Declaration__ __attribute__ ((packed))
+	//#define MAVPACKED( __Declaration__ )   __packed __Declaration__ 
 #else
   #define MAVPACKED( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 #endif
@@ -30,7 +33,7 @@
 #define MAVLINK_MSG_ID_EXTENDED_MESSAGE 255
 #define MAVLINK_EXTENDED_HEADER_LEN 14
 
-#if (defined _MSC_VER) || ((defined __APPLE__) && (defined __MACH__)) || (defined __linux__)
+#if (defined _MSC_VER) || ((defined __APPLE__) && (defined __MACH__)) || (defined __linux__) || defined(__ICCARM__)
   /* full fledged 32bit++ OS */
   #define MAVLINK_MAX_EXTENDED_PACKET_LEN 65507
 #else

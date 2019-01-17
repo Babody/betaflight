@@ -42,7 +42,13 @@
 
 #define CM_S_TO_KM_H(centimetersPerSecond) ((centimetersPerSecond) * 36 / 1000)
 #define CM_S_TO_MPH(centimetersPerSecond) ((centimetersPerSecond) * 10000 / 5080 / 88)
-
+#if (__ICCARM__)
+	//TODOjav: optimize to avoid double calculation
+	
+	#define MIN(a,b) 	(a < b ? a : b)
+	#define MAX(a,b) 		(a > b ? a : b)
+	#define ABS(x) 			(x > 0 ? x : -x)
+#else	
 #define MIN(a,b) \
   __extension__ ({ __typeof__ (a) _a = (a); \
   __typeof__ (b) _b = (b); \
@@ -54,7 +60,7 @@
 #define ABS(x) \
   __extension__ ({ __typeof__ (x) _x = (x); \
   _x > 0 ? _x : -_x; })
-
+#endif
 #define Q12 (1 << 12)
 
 #define HZ_TO_INTERVAL_US(x) (1000000 / (x))

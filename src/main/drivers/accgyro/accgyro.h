@@ -28,11 +28,16 @@
 #include "drivers/sensor.h"
 #include "drivers/accgyro/accgyro_mpu.h"
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
+#endif 
+
 #if defined(SIMULATOR_BUILD) && defined(SIMULATOR_MULTITHREAD)
 #include <pthread.h>
 #elif !defined(UNIT_TEST)
-#pragma GCC diagnostic warning "-Wpadded"
+	#if defined(__GNUC__)
+		#pragma GCC diagnostic warning "-Wpadded"
+	#endif 
 #endif
 
 typedef enum {
@@ -157,5 +162,8 @@ static inline void gyroDevUnLock(gyroDev_t *gyro)
 #else
     (void)gyro;
 #endif
-}
-#pragma GCC diagnostic pop
+	}
+
+#if defined(__GNUC__)
+	#pragma GCC diagnostic pop
+#endif

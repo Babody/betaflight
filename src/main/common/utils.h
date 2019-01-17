@@ -84,10 +84,14 @@ http://resnet.uoregon.edu/~gurney_j/jmpc/bitwise.html
                          >>16*((v)/2L>>31 > 0)))
 #define LOG2(v) LOG2_64BIT(v)
 
-#if 0
+#if defined (__ICCARM__)
 // ISO C version, but no type checking
 #define container_of(ptr, type, member) \
                       ((type *) ((char *)(ptr) - offsetof(type, member)))
+static inline int16_t cmp16(uint16_t a, uint16_t b) { return (int16_t)(a-b); }
+static inline int32_t cmp32(uint32_t a, uint32_t b) { return (int32_t)(a-b); }
+#define memcpy_fn memcpy;
+
 #else
 // non ISO variant from linux kernel; checks ptr type, but triggers 'ISO C forbids braced-groups within expressions [-Wpedantic]'
 //  __extension__ is here to disable this warning

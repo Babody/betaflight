@@ -105,31 +105,31 @@ inline bool isMcuConnected(void)
     return (DeviceInfo.bytes[0] > 0);
 }
 
-inline bool isEscHi(uint8_t selEsc)
+/*inline*/ bool isEscHi(uint8_t selEsc)
 {
     return (IORead(escHardware[selEsc].io) != Bit_RESET);
 }
-inline bool isEscLo(uint8_t selEsc)
+/*inline*/ bool isEscLo(uint8_t selEsc)
 {
     return (IORead(escHardware[selEsc].io) == Bit_RESET);
 }
 
-inline void setEscHi(uint8_t selEsc)
+/*inline*/ void setEscHi(uint8_t selEsc)
 {
     IOHi(escHardware[selEsc].io);
 }
 
-inline void setEscLo(uint8_t selEsc)
+/*inline*/ void setEscLo(uint8_t selEsc)
 {
     IOLo(escHardware[selEsc].io);
 }
 
-inline void setEscInput(uint8_t selEsc)
+/*inline*/ void setEscInput(uint8_t selEsc)
 {
     IOConfigGPIO(escHardware[selEsc].io, IOCFG_IPU);
 }
 
-inline void setEscOutput(uint8_t selEsc)
+/*inline*/ void setEscOutput(uint8_t selEsc)
 {
     IOConfigGPIO(escHardware[selEsc].io, IOCFG_OUT_PP);
 }

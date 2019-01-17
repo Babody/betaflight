@@ -22,7 +22,7 @@
 
 #define NOINLINE __attribute__((noinline))
 
-#if !defined(UNIT_TEST) && !defined(SIMULATOR_BUILD) && !(USBD_DEBUG_LEVEL > 0)
+#if defined(__GNUC__) && !defined(UNIT_TEST) && !defined(SIMULATOR_BUILD) && !(USBD_DEBUG_LEVEL > 0)
 #pragma GCC poison sprintf snprintf
 #endif
 
@@ -148,3 +148,25 @@
 #include "target.h"
 #include "target/common_post.h"
 #include "target/common_defaults_post.h"
+
+#ifdef __ICCARM__
+	#define __builtin_clz(x) __CLZ(x)
+	
+	inline static uint32_t __builtin_popcount(uint32_t a) {
+		a = a - ((a >> 1) & 0x55555555);
+		a = (a & 0x33333333) + ((a >> 2) & 0x33333333);
+		return (((a + (a >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
+	}
+
+	inline static int ffs (register int valu)
+	{
+		register int bit;
+		if (valu == 0)
+			return 0;
+		for (bit = 1; !(valu & 1); bit++)
+			valu >>= 1;
+		return bit;
+	}
+#endif
+
+

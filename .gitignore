@@ -22,9 +22,12 @@ README.pdf
 # artefacts of top-level Makefile
 /downloads/
 /tools/
+/__tools/
 /build/
 # local changes only
 make/local.mk
+Makefile.orig
+Makefile.bak
 
 # artefacts for VisualGDB (running in Visual Studio)
 mcu.mak
@@ -44,3 +47,8 @@ ubuntu*.log
 
 # EEPROM image file (created by SITL)
 eeprom.bin
+
+*log
+settings/
+Debug/
+

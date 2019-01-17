@@ -16,7 +16,7 @@
 #
 
 # The target to build, see VALID_TARGETS below
-TARGET    ?= BETAFLIGHTF3
+TARGET    ?= STM32F411DISCOVERY
 
 # Compile-time options
 OPTIONS   ?=
@@ -79,10 +79,10 @@ DL_DIR    := $(ROOT)/downloads
 export RM := rm
 
 # import macros that are OS specific
-include $(ROOT)/make/$(OSFAMILY).mk
+#include $(ROOT)/make/$(OSFAMILY).mk
 
 # include the tools makefile
-include $(ROOT)/make/tools.mk
+#include $(ROOT)/make/tools.mk
 
 # default xtal value for F4 targets
 HSE_VALUE       ?= 8000000
@@ -110,23 +110,30 @@ FATFS_SRC       = $(notdir $(wildcard $(FATFS_DIR)/*.c))
 CSOURCES        := $(shell find $(SRC_DIR) -name '*.c')
 
 LD_FLAGS         :=
+MYFLAGS      := -D STM32F411xE -D HSE_VALUE=8000000 -D ARM_MATH_MATRIX_CHECK -D ARM_MATH_ROUNDING \
+	-D __FPU_PRESENT=1 -D UNALIGNED_SUPPORT_DISABLE -D ARM_MATH_CM4 -D FLASH_SIZE=512 -D HSE_VALUE=8000000 \
+	-D _GNU_SOURCE -D USE_STDPERIPH_DRIVER -D STM32F411DISCOVERY -D STM32F4 -D __FORKNAME__='"betaflight"' \
+	-D __TARGET__='"STM32F411DISCOVERY"' -D __REVISION__='"4778ad6c0"' \
+	--no_cse --no_unroll --no_inline --no_code_motion --no_tbaa --no_clustering --no_scheduling \
+	--debug --endian=little --cpu=Cortex-M4 -e --fpu=VFPv4_sp \
+	--dlib_config 'C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\arm\inc\c\DLib_Config_Normal.h' \
+	--vla --use_c++_inline --debug --only_stdout --silent
 
 #
 # Default Tool options - can be overridden in {mcu}.mk files.
 #
 ifeq ($(DEBUG),GDB)
-OPTIMISE_DEFAULT      := -Og
-
+OPTIMISE_DEFAULT      := #$(MYFLAGS)
 LTO_FLAGS             := $(OPTIMISE_DEFAULT)
-DEBUG_FLAGS            = -ggdb3 -DDEBUG
+DEBUG_FLAGS            = -DDEBUG
 else
 ifeq ($(DEBUG),INFO)
-DEBUG_FLAGS            = -ggdb3
+DEBUG_FLAGS            = 
 endif
-OPTIMISATION_BASE     := -flto -fuse-linker-plugin -ffast-math
-OPTIMISE_DEFAULT      := -O2
-OPTIMISE_SPEED        := -Ofast
-OPTIMISE_SIZE         := -Os
+OPTIMISATION_BASE     := $(MYFLAGS)
+OPTIMISE_DEFAULT      := -Om
+OPTIMISE_SPEED        := -Ohs
+OPTIMISE_SIZE         := -Ohz
 
 LTO_FLAGS             := $(OPTIMISATION_BASE) $(OPTIMISE_SPEED)
 endif
@@ -187,7 +194,11 @@ CCACHE :=
 endif
 
 # Tool names
-CROSS_CC    := $(CCACHE) $(ARM_SDK_PREFIX)gcc
+CROSS_ASM = iasmarm
+CROSS_CC  = iccarm
+CROSS_LD  = ilinkarm
+#CROSS_CC    := $(CCACHE) iccarm.exe
+#CROSS_CC    := $(CCACHE) $(ARM_SDK_PREFIX)gcc
 CROSS_CXX   := $(CCACHE) $(ARM_SDK_PREFIX)g++
 CROSS_GDB   := $(ARM_SDK_PREFIX)gdb
 OBJCOPY     := $(ARM_SDK_PREFIX)objcopy
@@ -206,46 +217,35 @@ CFLAGS     += $(ARCH_FLAGS) \
               $(addprefix -D,$(OPTIONS)) \
               $(addprefix -I,$(INCLUDE_DIRS)) \
               $(DEBUG_FLAGS) \
-              -std=gnu11 \
-              -Wall -Wextra -Wunsafe-loop-optimizations -Wdouble-promotion \
-              -ffunction-sections \
-              -fdata-sections \
-              -fno-common \
-              -pedantic \
               $(DEVICE_FLAGS) \
+	      -D__ICCARM__=1 \
               -D_GNU_SOURCE \
               -DUSE_STDPERIPH_DRIVER \
               -D$(TARGET) \
               $(TARGET_FLAGS) \
-              -D'__FORKNAME__="$(FORKNAME)"' \
-              -D'__TARGET__="$(TARGET)"' \
-              -D'__REVISION__="$(REVISION)"' \
-              -save-temps=obj \
-              -MMD -MP \
+              -D__FORKNAME__='"$(FORKNAME)"' \
+              -D__TARGET__='"$(TARGET)"' \
+              -D__REVISION__='"$(REVISION)"' \
               $(EXTRA_FLAGS)
 
 ASFLAGS     = $(ARCH_FLAGS) \
               $(DEBUG_FLAGS) \
-              -x assembler-with-cpp \
               $(addprefix -I,$(INCLUDE_DIRS)) \
-              -MMD -MP
 
 ifeq ($(LD_FLAGS),)
-LD_FLAGS     = -lm \
-              -nostartfiles \
-              --specs=nano.specs \
-              -lc \
-              -lnosys \
-              $(ARCH_FLAGS) \
-              $(LTO_FLAGS) \
-              $(DEBUG_FLAGS) \
-              -static \
-              -Wl,-gc-sections,-Map,$(TARGET_MAP) \
-              -Wl,-L$(LINKER_DIR) \
-              -Wl,--cref \
-              -Wl,--no-wchar-size-warning \
-              -Wl,--print-memory-usage \
-              -T$(LD_SCRIPT)
+#	--config 'C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\arm\config\linker\ST\stm32f411xE.icf' \
+
+LD_FLAGS     = \
+	--no_out_extension \
+	--redirect _Printf=_PrintfFullNoMb \
+	--redirect _Scanf=_ScanfFullNoMb \
+	--map $(TARGET_MAP) \
+	--config iar\stm32f411xE.icf \
+	--semihosting \
+	--entry __iar_program_start \
+	--vfe \
+	--text_out locale \
+	'C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\arm\CMSIS\Lib\IAR\iar_cortexM4lf_math.a' 
 endif
 
 ###############################################################################
@@ -293,7 +293,7 @@ $(TARGET_BIN): $(TARGET_ELF)
 
 $(TARGET_ELF):  $(TARGET_OBJS)
 	@echo "Linking $(TARGET)" "$(STDOUT)"
-	$(V1) $(CROSS_CC) -o $@ $^ $(LD_FLAGS)
+	$(V1) $(CROSS_LD) -o $@ $^ $(LD_FLAGS)
 	$(V1) $(SIZE) $(TARGET_ELF)
 
 # Compile
@@ -319,7 +319,7 @@ endif
 $(OBJECT_DIR)/$(TARGET)/%.o: %.s
 	$(V1) mkdir -p $(dir $@)
 	@echo "%% $(notdir $<)" "$(STDOUT)"
-	$(V1) $(CROSS_CC) -c -o $@ $(ASFLAGS) $<
+	$(V1) $(CROSS_ASM) -c -o $@ $(ASFLAGS) $<
 
 $(OBJECT_DIR)/$(TARGET)/%.o: %.S
 	$(V1) mkdir -p $(dir $@)
@@ -378,11 +378,11 @@ clean_test:
 
 ## clean_<TARGET>    : clean up one specific target
 $(CLEAN_TARGETS):
-	$(V0) $(MAKE) -j TARGET=$(subst clean_,,$@) clean
+	$(V0) $(MAKE) -j1 TARGET=$(subst clean_,,$@) clean
 
 ## <TARGET>_clean    : clean up one specific target (alias for above)
 $(TARGETS_CLEAN):
-	$(V0) $(MAKE) -j TARGET=$(subst _clean,,$@) clean
+	$(V0) $(MAKE) -j1 TARGET=$(subst _clean,,$@) clean
 
 ## clean_all         : clean all valid targets
 clean_all: $(CLEAN_TARGETS)
@@ -411,10 +411,10 @@ openocd-gdb: $(TARGET_ELF)
 endif
 
 binary:
-	$(V0) $(MAKE) -j $(TARGET_BIN)
+	$(V0) $(MAKE) -j1 $(TARGET_BIN)
 
 hex:
-	$(V0) $(MAKE) -j $(TARGET_HEX)
+	$(V0) $(MAKE) -j1 $(TARGET_HEX)
 
 unbrick_$(TARGET): $(TARGET_HEX)
 	$(V0) stty -F $(SERIAL_DEVICE) raw speed 115200 -crtscts cs8 -parenb -cstopb -ixon

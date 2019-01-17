@@ -617,7 +617,7 @@ static void timCCxHandler(TIM_TypeDef *tim, timerConfig_t *timerConfig)
     uint16_t capture;
     unsigned tim_status;
     tim_status = tim->SR & tim->DIER;
-#if 1
+#if defined(__GNUC__)
     while (tim_status) {
         // flags will be cleared by reading CCR in dual capture, make sure we call handler correctly
         // currrent order is highest bit first. Code should not rely on specific order (it will introduce race conditions anyway)
@@ -656,7 +656,7 @@ static void timCCxHandler(TIM_TypeDef *tim, timerConfig_t *timerConfig)
                 break;
         }
     }
-#else
+#elseif defined(__ICCARM__)
     if (tim_status & (int)TIM_IT_Update) {
         tim->SR = ~TIM_IT_Update;
         capture = tim->ARR;
