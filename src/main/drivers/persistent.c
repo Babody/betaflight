@@ -77,7 +77,9 @@ uint32_t persistentObjectRead(persistentObjectId_e id)
 
 void persistentObjectWrite(persistentObjectId_e id, uint32_t value)
 {
+	PWR_BackupAccessCmd(ENABLE);
     RTC_WriteBackupRegister(id, value);
+	PWR_BackupAccessCmd(DISABLE);
 }
 
 void persistentObjectRTCEnable(void)

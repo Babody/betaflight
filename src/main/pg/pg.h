@@ -70,13 +70,16 @@ static inline uint16_t pgSize(const pgRegistry_t* reg) {return reg->size & PGR_S
 	extern const uint8_t __pg_resetdata_end[] __asm("section$end$__DATA$__pg_resetdata");
 	#define PG_RESETDATA_ATTRIBUTES __attribute__ ((section("__DATA,__pg_resetdata"), used, aligned(2)))
 #elif defined(__ICCARM__)
+	#pragma section = ".pg_registry"
 	#define PG_REGISTER_ATTRIBUTES _Pragma("location=\".pg_registry\"") __root 
 	#define __pg_registry_start __section_begin(".pg_registry")
 	#define __pg_registry_end   __section_end  (".pg_registry")
 
+	#pragma section = ".pg_resetdata"
 	#define PG_RESETDATA_ATTRIBUTES  _Pragma("location=\".pg_resetdata\"") __root 
-	#define __pg_resetdata_start  __section_begin(".pg_registry")
-	#define __pg_resetdata_end    __section_end  (".pg_registry")
+	//extern const pgRegistry_t *__pg_registry_start = __section_begin(".pg_registry");
+	#define __pg_resetdata_start  ((const pgRegistry_t *) __section_begin(".pg_resetdata"))
+	#define __pg_resetdata_end    ((const pgRegistry_t *) __section_end  (".pg_resetdata"))
 #elif defined(__GNUC__)
 	extern const pgRegistry_t __pg_registry_start[];
 	extern const pgRegistry_t __pg_registry_end[];
@@ -188,7 +191,7 @@ static inline uint16_t pgSize(const pgRegistry_t* reg) {return reg->size & PGR_S
 // Emit reset defaults for config.
 // Config must be registered with PG_REGISTER_<xxx>_WITH_RESET_TEMPLATE macro
 #define PG_RESET_TEMPLATE(_type, _name, ...)                            \
-    const _type pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES = {   \
+    PG_RESETDATA_ATTRIBUTES const _type pgResetTemplate_ ## _name = {   \
         __VA_ARGS__                                                     \
     }                                                                   \
     /**/
