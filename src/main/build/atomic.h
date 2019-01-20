@@ -22,7 +22,8 @@
 
 #include <stdint.h>
 
-#if !defined(UNIT_TEST)
+#ifndef __ICCARM__
+#if !defined(UNIT_TEST) 
 // BASEPRI manipulation functions
 // only set_BASEPRI is implemented in device library. It does always create memory barrier
 // missing versions are implemented here
@@ -184,3 +185,28 @@ static inline void __do_cleanup(__cleanup_block * b) { (*b)(); }
 // define these wrappers for atomic operations, using gcc builtins
 #define ATOMIC_OR(ptr, val) __sync_fetch_and_or(ptr, val)
 #define ATOMIC_AND(ptr, val) __sync_fetch_and_and(ptr, val)
+#else //defined(__ICCARM__)
+	#include "cmsis_compiler.h"
+	static inline uint8_t __basepriGet(void)
+	{
+		uint8_t ret =  __get_BASEPRI();
+		return ret;
+	}
+	static inline uint8_t __basepriSet(uint8_t prio)
+	{
+		__set_BASEPRI(prio);
+		return 1;
+	}
+	static inline uint8_t __basepriReset(uint8_t prio)
+	{
+		__set_BASEPRI(prio);
+		return 0;
+	}
+	
+	#define ATOMIC_BLOCK(prio) \
+		for ( \
+			uint8_t __basepri_save =  __basepriGet(), __ToDo = __basepriSet(prio); \
+			__ToDo != 0; \
+			__ToDo = __basepriReset(__basepri_save) )
+
+#endif // !defined(__ICCARM__)

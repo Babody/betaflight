@@ -115,7 +115,7 @@ void OTG_HS_WKUP_IRQHandler(void)
 #ifdef USE_USB_OTG_HS
 void OTG_HS_IRQHandler(void)
 #else
-void OTG_FS_IRQHandler(void)
+void 	(void)
 #endif
 {
   USBD_OTG_ISR_Handler (&USB_OTG_dev);

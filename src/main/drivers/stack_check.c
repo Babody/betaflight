@@ -32,8 +32,15 @@
 
 #define STACK_FILL_CHAR 0xa5
 
-extern char _estack; // end of stack, declared in .LD file
-extern char _Min_Stack_Size; // declared in .LD file
+#ifndef __ICCARM__
+	extern char _estack; // end of stack, declared in .LD file
+	extern char _Min_Stack_Size; // declared in .LD file
+#else
+	#pragma section = ".cstack"
+	#define _EndOfStack 	  ((uint8_t*)__section_end(".cstack"))
+	#define _BeginOfStack 	  ((uint8_t*)__section_begin(".cstack"))
+	#define _StackSize  	  (_EndOfStack - _BeginOfStack) 
+#endif
 
 /*
  * The ARM processor uses a full descending stack. This means the stack pointer holds the address
@@ -65,9 +72,9 @@ void taskStackCheck(timeUs_t currentTimeUs)
 {
     UNUSED(currentTimeUs);
 
-    char * const stackHighMem = &_estack;
-    const uint32_t stackSize = (uint32_t)&_Min_Stack_Size;
-    char * const stackLowMem = stackHighMem - stackSize;
+    char * const stackHighMem = _EndOfStack;
+    const uint32_t stackSize  = _StackSize;
+    char * const stackLowMem  = _BeginOfStack;
     const char * const stackCurrent = (char *)&stackLowMem;
 
     char *p;
@@ -93,10 +100,10 @@ uint32_t stackUsedSize(void)
 
 uint32_t stackTotalSize(void)
 {
-    return (uint32_t)(intptr_t)&_Min_Stack_Size;
+    return (uint32_t)_StackSize;
 }
 
 uint32_t stackHighMem(void)
 {
-    return (uint32_t)(intptr_t)&_estack;
+    return (uint32_t)(intptr_t)_EndOfStack;
 }

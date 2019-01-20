@@ -15,7 +15,7 @@ define symbol __ICFEDIT_size_heap__   = 0x1000;
 
 define memory mem with size = 4G;
 
-define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { section .cstack};
 define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 
 initialize by copy { readwrite };
@@ -63,6 +63,6 @@ place in      RAM_region
 
 define exported symbol _Hot_Reboot_Flags_Size = 16;
 define exported symbol _Min_Stack_Size   	 = __ICFEDIT_size_cstack__;
-define exported symbol _estack   			 = 0x08000000;
-define exported symbol isr_vector_table_base  = 0x08000000;
+define exported symbol _estack   			 = __ICFEDIT_size_cstack__;
+define exported symbol isr_vector_table_base  = __ICFEDIT_intvec_start__;
 
