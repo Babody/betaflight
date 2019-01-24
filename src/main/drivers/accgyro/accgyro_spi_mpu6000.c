@@ -125,7 +125,7 @@ void mpu6000SpiAccInit(accDev_t *acc)
     acc->acc_1G = 512 * 4;
 }
 
-uint8_t mpu6000SpiDetect(const busDevice_t *bus)
+mpuSensor_e mpu6000SpiDetect(const busDevice_t *bus)
 {
 
     spiSetDivisor(bus->busdev_u.spi.instance, SPI_CLOCK_INITIALIZATION);

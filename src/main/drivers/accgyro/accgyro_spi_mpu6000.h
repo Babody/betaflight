@@ -34,7 +34,7 @@
 // RF = Register Flag
 #define MPU_RF_DATA_RDY_EN (1 << 0)
 
-uint8_t mpu6000SpiDetect(const busDevice_t *bus);
+mpuSensor_e mpu6000SpiDetect(const busDevice_t *bus);
 
 bool mpu6000SpiAccDetect(accDev_t *acc);
 bool mpu6000SpiGyroDetect(gyroDev_t *gyro);

@@ -192,7 +192,7 @@ bool mpuGyroReadSPI(gyroDev_t *gyro)
     return true;
 }
 
-typedef uint8_t (*gyroSpiDetectFn_t)(const busDevice_t *bus);
+typedef mpuSensor_e (*gyroSpiDetectFn_t)(const busDevice_t *bus);
 
 static gyroSpiDetectFn_t gyroSpiDetectFnTable[] = {
 #ifdef USE_GYRO_SPI_MPU6000
@@ -232,7 +232,7 @@ static bool detectSPISensorsAndUpdateDetectionResult(gyroDev_t *gyro, const gyro
     IOConfigGPIO(gyro->bus.busdev_u.spi.csnPin, SPI_IO_CS_CFG);
     IOHi(gyro->bus.busdev_u.spi.csnPin); // Ensure device is disabled, important when two devices are on the same bus.
 
-    uint8_t sensor = MPU_NONE;
+    mpuSensor_e sensor = MPU_NONE;
 
     // It is hard to use hardware to optimize the detection loop here,
     // as hardware type and detection function name doesn't match.

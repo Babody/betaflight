@@ -45,7 +45,7 @@ static void mpu6500SpiInit(const busDevice_t *bus)
     spiSetDivisor(bus->busdev_u.spi.instance, SPI_CLOCK_FAST);
 }
 
-uint8_t mpu6500SpiDetect(const busDevice_t *bus)
+mpuSensor_e mpu6500SpiDetect(const busDevice_t *bus)
 {
     mpu6500SpiInit(bus);
 

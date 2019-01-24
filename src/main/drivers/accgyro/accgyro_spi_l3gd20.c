@@ -135,7 +135,7 @@ static bool l3gd20GyroRead(gyroDev_t *gyro)
 // Page 9 in datasheet, So - Sensitivity, Full Scale = 2000, 70 mdps/digit
 #define L3GD20_GYRO_SCALE_FACTOR  0.07f
 
-uint8_t l3gd20Detect(const busDevice_t *bus)
+mpuSensor_e l3gd20Detect(const busDevice_t *bus)
 {
     UNUSED(bus);
 

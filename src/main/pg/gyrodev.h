@@ -25,10 +25,11 @@
 
 #include "pg/pg.h"
 #include "drivers/io_types.h"
+#include "drivers/bus.h"
 
 typedef struct gyroDeviceConfig_s {
     int8_t index;
-    uint8_t bustype;
+    busType_e bustype;
     uint8_t spiBus;
     ioTag_t csnTag;
     uint8_t i2cBus;

@@ -89,7 +89,7 @@ static volatile bool BMI160Detected = false;
 static int32_t BMI160_Config(const busDevice_t *bus);
 static int32_t BMI160_do_foc(const busDevice_t *bus);
 
-uint8_t bmi160Detect(const busDevice_t *bus)
+mpuSensor_e bmi160Detect(const busDevice_t *bus)
 {
     if (BMI160Detected) {
         return BMI_160_SPI;

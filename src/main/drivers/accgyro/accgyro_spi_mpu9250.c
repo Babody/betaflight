@@ -149,7 +149,7 @@ static void mpu9250AccAndGyroInit(gyroDev_t *gyro) {
     mpuSpi9250InitDone = true; //init done
 }
 
-uint8_t mpu9250SpiDetect(const busDevice_t *bus)
+mpuSensor_e mpu9250SpiDetect(const busDevice_t *bus)
 {
 
     spiSetDivisor(bus->busdev_u.spi.instance, SPI_CLOCK_INITIALIZATION); //low speed

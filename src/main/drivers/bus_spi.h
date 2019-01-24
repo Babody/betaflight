@@ -89,7 +89,7 @@ typedef enum SPIDevice {
 #endif
 
 // Macros to convert between CLI bus number and SPIDevice.
-#define SPI_CFG_TO_DEV(x)   ((x) - 1)
+#define SPI_CFG_TO_DEV(x)   ((SPIDevice)((x) - 1))
 #define SPI_DEV_TO_CFG(x)   ((x) + 1)
 
 void spiPreinit(void);

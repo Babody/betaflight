@@ -51,7 +51,7 @@ static void icm20689SpiInit(const busDevice_t *bus)
     hardwareInitialised = true;
 }
 
-uint8_t icm20689SpiDetect(const busDevice_t *bus)
+mpuSensor_e icm20689SpiDetect(const busDevice_t *bus)
 {
     icm20689SpiInit(bus);
 
